@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -81,6 +82,11 @@ public class Helper {
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
     }
 
+    public void scroll() {
+        logger.info("scrolling");
+        ((JavascriptExecutor) driver).executeScript("window.scrollBy(0,1500)", "");
+    }
+
     public void sendHumanKeys(By locator, String text) throws NoSuchAlgorithmException {
         Random rand = SecureRandom.getInstanceStrong();
         for (int i = 0; i < text.length(); i++) {
@@ -122,6 +128,26 @@ public class Helper {
             System.out.println("Couldn't find the window with title -> " + title + "\nSwitching to parent window.");
             driver.switchTo().window(parentWindowHandle);
         }
+    }
+
+    public List<String> getText(List<WebElement> elementList) {
+        List<String> elStringList = new ArrayList<>();
+
+        elementList.forEach(element -> {
+            elStringList.add(element.getText());
+        });
+
+        return elStringList;
+    }
+
+    public List<String> getAttribute(List<WebElement> elementList, String attr) {
+        List<String> elStringList = new ArrayList<>();
+
+        elementList.forEach(element -> {
+            elStringList.add(element.getAttribute(attr));
+        });
+
+        return elStringList;
     }
 
 }

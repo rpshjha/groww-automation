@@ -116,7 +116,7 @@ public class HomePage extends Helper {
         this.waitTillElementIsDisplayed(By.xpath("//div[text()='See All']")).click();
     }
 
-    private StringBuilder getBuyEstimate() {
+    public StringBuilder getBuyEstimate() {
         clickOnSeeAll();
         By xpathHoldings = By.xpath("//table[contains(@class,'holdings')]/tbody/tr/td[1]/a");
         List<String> listOfHoldings = this.waitTillAllElementsArePresent(xpathHoldings).stream().map(WebElement::getText).collect(Collectors.toList());
@@ -146,7 +146,7 @@ public class HomePage extends Helper {
         return builder;
     }
 
-    private String getBuyPercent() {
+    public String getBuyPercent() {
         try {
             By xpathOfBuyPercent = By.xpath("//h2[text()='Analyst Estimates']/following::div[contains(@class,'clrSubText')][1]/div[text()='Buy']/following-sibling::div[2]");
             return this.getWait()
@@ -156,9 +156,24 @@ public class HomePage extends Helper {
                     .getText();
         } catch (org.openqa.selenium.TimeoutException e) {
             logger.error(e.getMessage());
-            e.printStackTrace();
             logger.error("buy percent not displayed, returning 0");
             return "0";
+        }
+    }
+
+    public int getBuyPercentNoOfAnalyst() {
+        try {
+            By xpathOfBuyPercent = By.xpath("//h2[text()='Analyst Estimates']/following::div[contains(@class,'clrSubText')][4]");
+            String text = this.getWait()
+                    .withTimeout(Duration.ofSeconds(4))
+                    .pollingEvery(Duration.ofMillis(500))
+                    .until(ExpectedConditions.visibilityOfElementLocated(xpathOfBuyPercent))
+                    .getText();
+            return Integer.parseInt(text.replaceAll("[^\\d]", ""));
+        } catch (org.openqa.selenium.TimeoutException e) {
+            logger.error(e.getMessage());
+            logger.error("no of analyst not displayed, returning 0");
+            return 0;
         }
     }
 
