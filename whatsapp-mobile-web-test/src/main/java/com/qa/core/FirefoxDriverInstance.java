@@ -1,7 +1,6 @@
 package com.qa.core;
 
 import com.qa.utils.PropertyReader;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.slf4j.Logger;
@@ -17,7 +16,6 @@ public class FirefoxDriverInstance {
     public static FirefoxDriver createDriverUsingFirefox() {
         logger.info("Opening the browser : Firefox");
 
-        WebDriverManager.firefoxdriver().setup();
         FirefoxOptions firefoxoptions = new FirefoxOptions();
         if (Boolean.parseBoolean(PropertyReader.getProperty("headless"))) {
             logger.info("running the test in headless mode");

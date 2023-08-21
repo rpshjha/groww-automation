@@ -48,9 +48,21 @@ public class Helper {
         return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
     }
 
+    public List<WebElement> waitTillAllElementsArePresent(By locator, long seconds) {
+        logger.info("waiting for {}", locator);
+        return wait.withTimeout(Duration.ofSeconds(seconds)).until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+    }
+
     public WebElement waitTillElementIsDisplayed(By locator) {
         logger.info("waiting for {}", locator);
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    public WebElement waitTillElementIsDisplayed(By locator, long seconds) {
+        logger.info("waiting for {}", locator);
+        return wait
+                .withTimeout(Duration.ofSeconds(seconds))
+                .until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
 
     public void waitForPageToLoad() {
@@ -58,7 +70,7 @@ public class Helper {
         wait.until((ExpectedCondition<Boolean>) wdriver -> ((JavascriptExecutor) driver).executeScript("return document.readyState").equals("complete"));
     }
 
-    public static void takeScreenshotAsFile(String fileName) {
+    public void takeScreenshotAsFile(String fileName) {
         String nFileName = getProperty("screenshot.dir") + File.separator + fileName + ".png";
         logger.info("saving screenshot for {}", fileName);
 
@@ -68,7 +80,7 @@ public class Helper {
         try {
             FileUtils.copyFile(src, dest);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -133,9 +145,7 @@ public class Helper {
     public List<String> getText(List<WebElement> elementList) {
         List<String> elStringList = new ArrayList<>();
 
-        elementList.forEach(element -> {
-            elStringList.add(element.getText());
-        });
+        elementList.forEach(element -> elStringList.add(element.getText()));
 
         return elStringList;
     }
@@ -143,9 +153,7 @@ public class Helper {
     public List<String> getAttribute(List<WebElement> elementList, String attr) {
         List<String> elStringList = new ArrayList<>();
 
-        elementList.forEach(element -> {
-            elStringList.add(element.getAttribute(attr));
-        });
+        elementList.forEach(element -> elStringList.add(element.getAttribute(attr)));
 
         return elStringList;
     }

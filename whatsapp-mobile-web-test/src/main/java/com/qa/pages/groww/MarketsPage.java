@@ -127,7 +127,7 @@ public class MarketsPage extends Helper {
         int buyEstimateNo = 0;
         try {
             this.getWait().until(ExpectedConditions.elementToBeClickable(xpath)).click();
-            HomePage homePage = new HomePage(this.driver);
+            AllMutualFundsPage homePage = new AllMutualFundsPage(this.driver);
             percentage = Integer.parseInt(homePage.getBuyPercent().replaceAll("[^\\d]", ""));
             buyEstimateNo = homePage.getBuyPercentNoOfAnalyst();
             System.out.println("buy percent is " + percentage + " for mf " + text);
@@ -145,7 +145,7 @@ public class MarketsPage extends Helper {
         int buyEstimateNo = 0;
         try {
             this.driver.navigate().to(link);
-            HomePage homePage = new HomePage(this.driver);
+            AllMutualFundsPage homePage = new AllMutualFundsPage(this.driver);
             percentage = Integer.parseInt(homePage.getBuyPercent().replaceAll("[^\\d]", ""));
             buyEstimateNo = homePage.getBuyPercentNoOfAnalyst();
             System.out.println("buy percent is " + percentage + " for stock  " + stockName);

@@ -60,7 +60,7 @@ public class DriverInstance {
 
         if (driver.get() != null) {
             getDriver().quit();
-            AppiumServer.stopServer();
+//            AppiumServer.stopServer();
         }
         driver.remove();
     }

@@ -4,8 +4,8 @@ import com.qa.pages.constant.Category;
 import com.qa.pages.constant.FundSize;
 import com.qa.pages.constant.Risk;
 import com.qa.pages.constant.SortBy;
-import com.qa.pages.groww.HomePage;
 import com.qa.pages.groww.MarketsPage;
+import com.qa.pages.groww.AllMutualFundsPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,24 +16,34 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class WebTest extends BaseTest {
 
+//    @Test
+//    void dummy() {
+//        getDriver().get("https://groww.in/stocks/cpec-ltd");
+//
+//        AllMutualFundsPage allMutualFundsPage = new AllMutualFundsPage(getDriver());
+//
+////        allMutualFundsPage.getNearTo52WLowPercentage();
+//        String a =allMutualFundsPage.getMarketDepthPercentage();
+//        System.out.println(a);
+//
+//    }
+
     @Test
     @DisplayName("get buy estimate for stocks")
     void test1() {
 
-        HomePage homePage = new HomePage(getDriver());
+        AllMutualFundsPage mutualFundsPage = new AllMutualFundsPage(getDriver());
 
-        homePage.goTo();
-        assertTrue(homePage.isAt(), "verify if page is loaded");
+        mutualFundsPage.goTo();
+        assertTrue(mutualFundsPage.isAt(), "verify if page is loaded");
 
-        homePage.goToMutualFundPage();
+        mutualFundsPage.filterMutualFundsByCategory(Category.EQUITY);
+        mutualFundsPage.filterMutualFundsByFundSize(FundSize.FIVE_THOUSAND_CR);
+        mutualFundsPage.filterMutualFundsByRisk(Risk.HIGH);
+        mutualFundsPage.filterMutualFundsByRisk(Risk.VERY_HIGH);
+        mutualFundsPage.sortBy(SortBy.RETURNS_HIGH_TO_LOW);
 
-        homePage.filterMutualFundsByCategory(Category.EQUITY);
-        homePage.filterMutualFundsByFundSize(FundSize.TEN_THOUSAND_CR);
-        homePage.filterMutualFundsByRisk(Risk.HIGH);
-        homePage.filterMutualFundsByRisk(Risk.VERY_HIGH);
-        homePage.sortBy(SortBy.RETURNS_HIGH_TO_LOW);
-
-        homePage.getBuyEstimateForMutualFundHoldings(6);
+        mutualFundsPage.getBuyEstimateForMutualFundHoldings(10);
     }
 
     @ParameterizedTest

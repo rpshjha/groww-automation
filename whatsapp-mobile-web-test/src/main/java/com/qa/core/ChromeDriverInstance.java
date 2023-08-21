@@ -1,7 +1,6 @@
 package com.qa.core;
 
 import com.qa.utils.PropertyReader;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
@@ -17,7 +16,6 @@ public class ChromeDriverInstance {
     public static ChromeDriver createDriverUsingChrome() {
         logger.info("Opening the browser : Chrome");
 
-        WebDriverManager.chromedriver().setup();
         ChromeOptions chromeoptions = new ChromeOptions();
         chromeoptions.addArguments("--disable-notifications");
         if (Boolean.parseBoolean(PropertyReader.getProperty("headless"))) {
