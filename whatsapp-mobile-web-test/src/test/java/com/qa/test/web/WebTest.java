@@ -6,6 +6,7 @@ import com.qa.pages.constant.Risk;
 import com.qa.pages.constant.SortBy;
 import com.qa.pages.groww.MarketsPage;
 import com.qa.pages.groww.AllMutualFundsPage;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,17 +17,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class WebTest extends BaseTest {
 
-//    @Test
-//    void dummy() {
-//        getDriver().get("https://groww.in/stocks/cpec-ltd");
-//
-//        AllMutualFundsPage allMutualFundsPage = new AllMutualFundsPage(getDriver());
-//
-////        allMutualFundsPage.getNearTo52WLowPercentage();
-//        String a =allMutualFundsPage.getMarketDepthPercentage();
-//        System.out.println(a);
-//
-//    }
+    @Test
+//    @Disabled
+    void dummy() {
+        String url = "https://groww.in/mutual-funds/sbi-contra-fund-direct-growth";
+
+        AllMutualFundsPage mutualFundsPage = new AllMutualFundsPage(getDriver());
+
+        getDriver().get(url);
+
+        mutualFundsPage.getMarketTrendsOfMutualFundHoldings("SBI Contra Direct Plan Growth");
+
+    }
 
     @Test
     @DisplayName("get buy estimate for stocks")
@@ -41,12 +43,13 @@ class WebTest extends BaseTest {
         mutualFundsPage.filterMutualFundsByFundSize(FundSize.FIVE_THOUSAND_CR);
         mutualFundsPage.filterMutualFundsByRisk(Risk.HIGH);
         mutualFundsPage.filterMutualFundsByRisk(Risk.VERY_HIGH);
-        mutualFundsPage.sortBy(SortBy.RETURNS_HIGH_TO_LOW);
+        mutualFundsPage.sortBy(SortBy.POPULARITY);
 
-        mutualFundsPage.getBuyEstimateForMutualFundHoldings(10);
+        mutualFundsPage.getMarketTrendsOfMutualFundHoldings(7);
     }
 
     @ParameterizedTest
+    @Disabled
 //    @CsvSource({"NIFTY 100,Top gainers", "NIFTY 100,Top losers", "NIFTY 500,Top losers", "NIFTY Midcap 100,Top by volume", "NIFTY Midcap 100,52W low"})
 //    @CsvSource({"NIFTY 100,52W low", "NIFTY 500,52W low", "NIFTY Midcap 100,52W low", "NIFTY Smallcap 100,52W low"})
     @CsvSource({"NIFTY 100,Top losers", "NIFTY 500,Top losers", "NIFTY Midcap 100,Top losers", "NIFTY Smallcap 100,Top losers"})

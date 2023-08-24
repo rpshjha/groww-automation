@@ -64,7 +64,31 @@ public class AllMutualFundsPage extends Helper {
         this.waitTillElementIsDisplayed(By.xpath("//div[@class='c11CLabel'][text()='" + sort + "']")).click();
     }
 
-    public void getBuyEstimateForMutualFundHoldings(int numberOfMF) {
+    public void getMarketTrendsOfMutualFundHoldings(String textMF) {
+        StringBuilder builder = new StringBuilder();
+
+        try {
+            String parentWindowHandle = driver.getWindowHandle();
+
+            builder.append(textMF);
+            builder.append(",");
+            builder.append(" ");
+            builder.append('\n');
+
+            builder.append(clickOnStockUnderMFAndReturnData());
+
+            driver.close();
+            driver.switchTo().window(parentWindowHandle);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            FileUtils fileUtils = new FileUtils();
+            fileUtils.createCSV(builder, "groww_mutual_fund");
+        }
+    }
+
+    public void getMarketTrendsOfMutualFundHoldings(int numberOfMF) {
         StringBuilder builder = new StringBuilder();
         String xpathMF = "//div[contains(@class,'ResultSec')]/descendant::tbody/tr/a/td[2]/div[contains(@class,'f22SchemeName')]/div[1]";
 
@@ -77,7 +101,7 @@ public class AllMutualFundsPage extends Helper {
                     String parentWindowHandle = driver.getWindowHandle();
                     logger.info("clicking on {}", textMF);
                     this.getWait().ignoring(StaleElementReferenceException.class)
-                                    .until(ExpectedConditions.elementToBeClickable(element)).click();
+                            .until(ExpectedConditions.elementToBeClickable(element)).click();
                     switchToWindow(textMF);
 
                     builder.append(textMF);
@@ -85,13 +109,10 @@ public class AllMutualFundsPage extends Helper {
                     builder.append(" ");
                     builder.append('\n');
 
-                    builder.append(getBuyEstimate());
+                    builder.append(clickOnStockUnderMFAndReturnData());
 
                     driver.close();
                     driver.switchTo().window(parentWindowHandle);
-                } catch (StaleElementReferenceException | TimeoutException e) {
-                    logger.error(e.getMessage());
-                    e.printStackTrace();
                 } catch (Exception e) {
                     logger.error(e.getMessage());
                     e.printStackTrace();
@@ -108,40 +129,63 @@ public class AllMutualFundsPage extends Helper {
         this.waitTillElementIsDisplayed(By.xpath("//div[text()='See All']")).click();
     }
 
-    public StringBuilder getBuyEstimate() {
+    public StringBuilder clickOnStockUnderMFAndReturnData() {
         clickOnSeeAllUnderHoldings();
         By xpathHoldings = By.xpath("//table[contains(@class,'holdings')]/tbody/tr/td[1]/a");
         List<String> listOfHoldings = this.waitTillAllElementsArePresent(xpathHoldings).stream().map(WebElement::getText).collect(Collectors.toList());
 
         StringBuilder builder = new StringBuilder();
 
-        for (String holdingsName : listOfHoldings) {
-            String xpath = "//a/div[text()='" + holdingsName + "']";
-            WebElement holdings = this.waitTillElementIsDisplayed(By.xpath(xpath));
-            String text = holdings.getText();
+        builder.append("Stock Name");
+        builder.append(",");
+        builder.append("Today's Low");
+        builder.append(",");
+        builder.append("Buy Percent");
+        builder.append(",");
+        builder.append("Buy Order Quantity");
+        builder.append(",");
+        builder.append("Sell Order Quantity");
+        builder.append(",");
+        builder.append("near to 52 W Low Percentage");
+        builder.append('\n');
 
-            logger.info("clicking on holdings {}", text);
+        for (String holdingsName : listOfHoldings) {
+            String xpath = "//a/div[text()=\"" + holdingsName + "\"]";
+            WebElement holdings = this.waitTillElementIsDisplayed(By.xpath(xpath));
+            String stockHoldingsText = holdings.getText();
+
+            logger.info("clicking on holdings {}", stockHoldingsText);
             holdings.click();
             waitForPageToLoad();
 
-            String buyPercent = getBuyPercent();
-            logger.info("Buy percent of {} is {}", text, buyPercent);
+            String todayLow = getTodayLow();
+            logger.info("Today's low of {} is {}", stockHoldingsText, todayLow);
 
-            String buyOrderQuantity = getMarketDepthPercentage();
-            logger.info("Buy order and sell order of {} is {}", text, buyOrderQuantity);
+            String buyPercent = getBuyPercent();
+            logger.info("Buy percent of {} is {}", stockHoldingsText, buyPercent);
+
+            String buyOrderQuantity = getMarketBuyOrderQuantity();
+            logger.info("Buy order order of {} is {}", stockHoldingsText, buyOrderQuantity);
+
+            String sellOrderQuantity = getMarketSellOrderQuantity();
+            logger.info("Sell order of {} is {}", stockHoldingsText, sellOrderQuantity);
 
             String nearTo52WLowPercentage = getNearTo52WLowPercentage();
-            logger.info("nearTo52WLowPercentage of {} is {}", text, nearTo52WLowPercentage);
+            logger.info("nearTo52WLowPercentage of {} is {}", stockHoldingsText, nearTo52WLowPercentage);
 
             logger.info("navigating back to previous page");
             this.driver.navigate().back();
             clickOnSeeAllUnderHoldings();
             waitForPageToLoad();
-            builder.append(text);
+            builder.append(stockHoldingsText);
+            builder.append(",");
+            builder.append(todayLow);
             builder.append(",");
             builder.append(buyPercent);
             builder.append(",");
             builder.append(buyOrderQuantity);
+            builder.append(",");
+            builder.append(sellOrderQuantity);
             builder.append(",");
             builder.append(nearTo52WLowPercentage);
             builder.append('\n');
@@ -153,7 +197,6 @@ public class AllMutualFundsPage extends Helper {
     public String getBuyPercent() {
         try {
             By xpathOfBuyPercent = By.xpath("//h2[text()='Analyst Estimates']/following::div[text()='Buy']/following-sibling::div[2]");
-//            By xpathOfBuyPercent = By.xpath("//h2[text()='Analyst Estimates']/following::div[contains(@class,'clrSubText')][1]/div[text()='Buy']/following-sibling::div[2]");
             return this.getWait()
                     .withTimeout(Duration.ofSeconds(4))
                     .pollingEvery(Duration.ofMillis(500))
@@ -174,7 +217,7 @@ public class AllMutualFundsPage extends Helper {
                     .pollingEvery(Duration.ofMillis(500))
                     .until(ExpectedConditions.visibilityOfElementLocated(xpathOfBuyPercent))
                     .getText();
-            return Integer.parseInt(text.replaceAll("[^\\d]", ""));
+            return Integer.parseInt(text.replaceAll("\\D", ""));
         } catch (org.openqa.selenium.TimeoutException e) {
             logger.error(e.getMessage());
             logger.error("no of analyst not displayed, returning 0");
@@ -187,8 +230,8 @@ public class AllMutualFundsPage extends Helper {
 
         String nearTo52WLowPercentage = "";
         try {
-            nearTo52WLowPercentage = waitTillElementIsDisplayed(xpath, 5).getAttribute("style").replaceAll("[^0-9 \\.]", "").replaceAll("\\.\\d+$", "").trim();
-        } catch (org.openqa.selenium.TimeoutException e) {
+            nearTo52WLowPercentage = waitTillElementIsDisplayed(xpath, 5).getAttribute("style").replaceAll("[^0-9 .]", "").replaceAll("\\.\\d+$", "").trim();
+        } catch (org.openqa.selenium.TimeoutException ignored) {
         }
 
         if (nearTo52WLowPercentage.isEmpty())
@@ -197,19 +240,47 @@ public class AllMutualFundsPage extends Helper {
         return nearTo52WLowPercentage;
     }
 
-    public String getMarketDepthPercentage() {
+    public String getMarketBuyOrderQuantity() {
         By xpath = By.xpath("//div[contains(@class,'marketDepthUI_positionBar')]/div/div");
 
         waitForPageToLoad();
         String getBuyOrderQuantity = "";
         try {
-            getBuyOrderQuantity = waitTillAllElementsArePresent(xpath, 5).get(0).getAttribute("style").replaceAll("[^0-9 \\.]", "").replaceAll("\\.\\d+$", "").trim();
-        } catch (org.openqa.selenium.TimeoutException e) {
+            getBuyOrderQuantity = waitTillAllElementsArePresent(xpath, 5).get(0).getAttribute("style").replaceAll("[^0-9 .]", "").replaceAll("\\.\\d+$", "").trim();
+        } catch (org.openqa.selenium.TimeoutException ignored) {
         }
 
         if (getBuyOrderQuantity.isEmpty())
             return "0";
         return getBuyOrderQuantity;
+    }
+
+    public String getMarketSellOrderQuantity() {
+        By xpath = By.xpath("//div[contains(@class,'marketDepthUI_filledBar')]/following::div[2]/span[1]");
+
+        String getSellOrderQuantity = "";
+        try {
+            getSellOrderQuantity = waitTillAllElementsArePresent(xpath, 5).get(0).getText().trim();
+        } catch (org.openqa.selenium.TimeoutException ignored) {
+        }
+
+        if (getSellOrderQuantity.isEmpty())
+            return "0";
+        return getSellOrderQuantity;
+    }
+
+    public String getTodayLow() {
+        By xpath = By.xpath("//div[contains(text(),'Today’s Low')]/following-sibling::div/div/span");
+
+        String todayLow = "";
+        try {
+            todayLow = waitTillElementIsDisplayed(xpath, 5).getText().replaceAll("[^0-9 .]", "").replaceAll("\\.\\d+$", "").trim();
+        } catch (Exception ignored) {
+        }
+
+        if (todayLow.isEmpty())
+            return "0";
+        return todayLow;
     }
 
 }
